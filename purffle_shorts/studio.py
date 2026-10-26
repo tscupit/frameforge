@@ -29,6 +29,7 @@ from pathlib import Path
 
 from . import __version__
 from .config import ASPECTS, Settings, aspect_resolution
+from .job_store import JobStore
 
 log = logging.getLogger("purffle")
 
@@ -99,10 +100,13 @@ class StudioServer:
         self.studio = Studio(settings)
         # STUDIO_TOKEN fixes the write token, so scripts and tools like n8n can call the API (see docs/api.md)
         self.token = os.getenv("STUDIO_TOKEN", "").strip() or secrets.token_urlsafe(24)
-        self.jobs: dict[int, Job] = {}
+        self.job_store = JobStore(settings.data_path / "studio_jobs.db")
+        self.job_store.recover()
+        self.jobs: dict[int, Job] = {
+            row["id"]: Job(**row) for row in self.job_store.recent(100)
+        }
         self.queue: queue.Queue[Job] = queue.Queue()
         self.current: Job | None = None
-        self._next = 1
         self._lock = threading.Lock()
         self._voices: dict[str, list] = {}
         self.version = 0                       # bumped on every job change; the event stream waits on it
@@ -111,6 +115,8 @@ class StudioServer:
         threading.Thread(target=self._worker, name="studio-worker", daemon=True).start()
 
     def changed(self) -> None:
+        if self.current is not None:
+            self.job_store.save(self.current)
         with self._changed:
             self.version += 1
             self._changed.notify_all()
@@ -126,8 +132,8 @@ class StudioServer:
     # ------------------------------------------------------------------ jobs
     def submit(self, kind: str, params: dict, label: str = "") -> Job:
         with self._lock:
-            job = Job(self._next, kind, params, label=label or kind)
-            self._next += 1
+            record = self.job_store.create(kind, params, label or kind)
+            job = Job(record["id"], kind, params, label=label or kind, created=record["created"])
             self.jobs[job.id] = job
             for old in sorted(self.jobs)[:-100]:  # keep the list bounded
                 if self.jobs[old].status not in ("queued", "running"):
@@ -144,6 +150,7 @@ class StudioServer:
         job = self.jobs.get(jid)
         if job and job.status == "queued":
             job.status, job.finished = "cancelled", time.time()
+            self.job_store.save(job)
             self.changed()
             return True
         if job and job.status == "running" and job is self.current:
@@ -240,6 +247,7 @@ class StudioServer:
                 job.finished, job.eta_fn = time.time(), None
                 if job.status == "done":
                     job.pct = 100
+                self.job_store.save(job)
                 self.current = None
                 CANCEL.clear()
                 self.changed()
