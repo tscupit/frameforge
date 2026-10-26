@@ -9,6 +9,7 @@ import json
 import sqlite3
 import threading
 import time
+from contextlib import contextmanager
 from pathlib import Path
 
 
@@ -37,10 +38,15 @@ class JobStore:
             )""")
             db.execute("CREATE INDEX IF NOT EXISTS studio_jobs_status ON studio_jobs(status)")
 
+    @contextmanager
     def _connect(self):
         db = sqlite3.connect(self.path, timeout=30)
         db.row_factory = sqlite3.Row
-        return db
+        try:
+            with db:
+                yield db
+        finally:
+            db.close()
 
     def create(self, kind: str, params: dict, label: str) -> dict:
         created = time.time()
