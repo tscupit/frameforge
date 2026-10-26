@@ -217,7 +217,11 @@ def test_finished_job_is_saved_in_sqlite(server):
     jid = json.loads(req(port, "POST", "/api/draft", {"offline": True}, app.token)[2])["job"]
     job = _job(port, jid)
     assert job["status"] == "done"
-    stored = next(row for row in app.job_store.recent() if row["id"] == jid)
+    for _ in range(100):
+        stored = next(row for row in app.job_store.recent() if row["id"] == jid)
+        if stored["status"] == "done":
+            break
+        time.sleep(0.01)
     assert stored["status"] == "done"
     assert stored["result"] == job["result"]
     assert stored["finished"] is not None
