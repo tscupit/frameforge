@@ -210,3 +210,14 @@ def test_page_has_no_inline_styles_or_scripts(server):
     js = req(port, "GET", "/static/app.js")[2].decode()
     assert not re.search(r"\sstyle=", html) and not re.search(r"<script>(?!\s*</script>)", html)
     assert not re.search(r"""\sstyle=["']""", js)
+
+
+def test_finished_job_is_saved_in_sqlite(server):
+    app, port = server
+    jid = json.loads(req(port, "POST", "/api/draft", {"offline": True}, app.token)[2])["job"]
+    job = _job(port, jid)
+    assert job["status"] == "done"
+    stored = next(row for row in app.job_store.recent() if row["id"] == jid)
+    assert stored["status"] == "done"
+    assert stored["result"] == job["result"]
+    assert stored["finished"] is not None
