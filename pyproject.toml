@@ -62,11 +62,11 @@ dev = ["pytest>=8", "ruff>=0.5"]
 purffle-shorts = "purffle_shorts.cli:main"
 
 [project.urls]
-Homepage = "https://purffle.com/purffle-shorts/"
-Documentation = "https://github.com/Chamanrajragu/purffle-shorts#readme"
-Source = "https://github.com/Chamanrajragu/purffle-shorts"
-Issues = "https://github.com/Chamanrajragu/purffle-shorts/issues"
-Changelog = "https://github.com/Chamanrajragu/purffle-shorts/blob/main/CHANGELOG.md"
+Homepage = "https://github.com/tscupit/frameforge"
+Documentation = "https://github.com/tscupit/frameforge#readme"
+Source = "https://github.com/tscupit/frameforge"
+Issues = "https://github.com/tscupit/frameforge/issues"
+Changelog = "https://github.com/tscupit/frameforge/blob/main/CHANGELOG.md"
 
 [tool.setuptools.packages.find]
 include = ["purffle_shorts", "purffle_shorts.*"]

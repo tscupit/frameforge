@@ -2,7 +2,7 @@
 
 ## Reporting a vulnerability
 
-Please do not open a public issue for security problems. Email **info@purffle.com** with the details and steps to reproduce.
+Please do not open a public issue for security problems. For this fork, contact the repository maintainer privately through an agreed secure channel. Do not post vulnerability details in a public issue. The upstream project's contact address is not the security contact for FrameForge.
 
 ## Keeping your keys safe
 

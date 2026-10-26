@@ -1,4 +1,4 @@
-# PurffleShorts on a server, NAS or any machine with Docker.
+# FrameForge local Docker setup (builds from this checkout).
 #
 #   cp .env.example .env            # add your keys, and set STUDIO_PASSWORD
 #   docker compose up -d            # the Studio: http://localhost:8765
@@ -9,7 +9,7 @@
 # To build the image from this checkout instead of pulling it, run:  docker compose build
 services:
   studio:
-    image: ghcr.io/chamanrajragu/purffle-shorts:latest
+    image: frameforge:local
     build: .
     command: ["studio", "--host", "0.0.0.0", "--no-browser"]
     env_file: .env
@@ -22,7 +22,7 @@ services:
     restart: unless-stopped
 
   autopilot:
-    image: ghcr.io/chamanrajragu/purffle-shorts:latest
+    image: frameforge:local
     build: .
     command: ["run"]
     env_file: .env
