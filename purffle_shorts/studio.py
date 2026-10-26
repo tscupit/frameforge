@@ -247,6 +247,7 @@ class StudioServer:
                 job.finished, job.eta_fn = time.time(), None
                 if job.status == "done":
                     job.pct = 100
+                self.job_store.save(job)
                 self.current = None
                 CANCEL.clear()
                 self.changed()
