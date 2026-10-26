@@ -6,8 +6,8 @@
 #                           studio --host 0.0.0.0 --no-browser     (then open http://127.0.0.1:8765)
 #   Publish the port as -p 127.0.0.1:8765:8765 so the Studio is only reachable from this computer.
 FROM python:3.12-slim
-LABEL org.opencontainers.image.source="https://github.com/Chamanrajragu/purffle-shorts" \
-      org.opencontainers.image.description="Free AI YouTube Shorts generator and upload autopilot" \
+LABEL org.opencontainers.image.source="https://github.com/tscupit/frameforge" \
+      org.opencontainers.image.description="FrameForge: AI-assisted video generation and clipping" \
       org.opencontainers.image.licenses="MIT"
 
 RUN apt-get update \
